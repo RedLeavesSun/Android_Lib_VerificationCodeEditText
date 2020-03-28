@@ -1,11 +1,11 @@
 # VerificationCodeEditText [![](https://jitpack.io/v/FairyHeart/VerificationCodeEditText.svg)](https://jitpack.io/#FairyHeart/VerificationCodeEditText)
 
-验证码或者密码输入框样式
+Verification code or password input box style
 
-<img src="https://github.com/FairyHeart/VerificationCodeEditText/blob/master/WechatIMG528.jpeg" width = "320" height = "560" alt="图片名称" 
+<img src="https://github.com/FairyHeart/VerificationCodeEditText/blob/master/WechatIMG528.jpeg" width = "320" height = "560" alt="demo picture" 
 align=center>
 
-使用：<br />1、在布局文件中添加VerificationCodeEditText并设置相关自定义属性
+Use:<br />1. Add VerificationCodeEditText to the layout file and set relevant custom attributes
 ```xml
 <com.lib.verification.code.VerificationCodeEditText
        android:id="@+id/rect_edit"
@@ -29,28 +29,28 @@ align=center>
        app:showCursor="true"
        app:textColor="@color/colorAccent" />
 ```
-***需要给控件设置宽高***<br />
-<br />2、相关属性说明<br />
+**Need to set width and height for the control * * *<br />
+<br />2. Description of related attributes<br />
 
 
-| **属性名** | **属性说明** |
+| **Attribute name** | **Attribute description** |
 | :---: | :---: |
-| password | 设置是否是密码样式，true 则显示小圆点 |
-| showCursor | 是否显示光标 |
-| separateType | 按钮样式，@integer/type_hollow空心方形，type_solid=实心方形，type_underline=下划线 |
-| maxLength | 设置显示框框个数，0表示根据屏幕自动计算 |
-| corner | 设置圆角 dp |
-| borderColor | 设置框框实心部分颜色，type_solid适用 |
-| borderWidth | 设置边框粗细 dp |
-| blockColor | 设置框框实心部分颜色，type_solid适用 |
-| textColor | 设置文本绘制颜色 |
-| blockSpacing | 设置框框间隙，type_solid、type_underline适用 |
-| cursorDuration | 设置游标闪烁时长 毫秒 |
-| cursorWidth | 设置进游标宽度 |
-| cursorColor | 设置游标显示颜色 |
+| password | Set whether password style, true Display dots |
+| showCursor | Whether to display the cursor |
+| separateType | Button style, @ integer/type_hollow hollow square,type_solid = solid square,Type_equipments = underscores |
+| maxLength | Set the number of display boxes. 0 indicates automatic calculation based on the screen. |
+| corner | Set fillet dp |
+| borderColor | Set the solid color of the box, type_solid is applicable |
+| borderWidth | Set border thickness dp |
+| blockColor | Set the solid color of the box, type_solid is applicable |
+| textColor | Set the color of text drawing |
+| blockSpacing | Set border gap, type_solid, type_underline applies |
+| cursorDuration | Sets the cursor flicker duration in milliseconds |
+| cursorWidth | Sets the width of the cursor |
+| cursorColor | Sets the cursor display color |
 
 
-<br />3、java代码中设置监听器，也可以设置自定义的相关属性
+<br />3. Set listeners in java code, and you can also set custom related attributes.
 ```kotlin
         val lineEdit = findViewById<VerificationCodeEditText>(R.id.rect_edit)
         lineEdit.showCursor = true
