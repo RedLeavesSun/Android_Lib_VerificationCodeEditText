@@ -2,60 +2,137 @@ package com.lib.verification.code
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.drawable.Drawable
-import android.text.TextPaint
+import android.graphics.RectF
+import android.os.Handler
+import android.text.InputFilter
+import android.text.InputFilter.LengthFilter
 import android.util.AttributeSet
+import android.view.Menu
+import android.view.MenuItem
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.core.content.ContextCompat
+import java.util.*
 
 /**
- * TODO: document your custom view class.
+ * 验证码或者对话框输入控件
+ *
+ * @author: 笨小孩.
+ * @date  : 2020/3/28.
  */
 class VerificationCodeEditText : AppCompatEditText {
 
-    private var _exampleString: String? = null
-    private var _exampleColor: Int = Color.RED // TODO: use a default from R.color...
-    private var _exampleDimension: Float = 0f // TODO: use a default from R.dimen...
+    companion object {
+        const val TYPE_HOLLOW = 1 //空心
+        const val TYPE_SOLID = 2 //实心
+        const val TYPE_UNDERLINE = 3 //下划线
+    }
 
-    private var textPaint: TextPaint? = null
-    private var textWidth: Float = 0f
-    private var textHeight: Float = 0f
-
-    /**
-     * The text to draw
-     */
-    var exampleString: String?
-        get() = _exampleString
+    /**方块之间间隙*/
+    var spacing = 0
         set(value) {
-            _exampleString = value
-            invalidateTextPaintAndMeasurements()
+            field = value
+            postInvalidate()
+        }
+    /**圆角*/
+    var corner = 0
+        set(value) {
+            field = value
+            postInvalidate()
+        }
+    /**最大位数*/
+    var maxLength = 0
+        set(value) {
+            field = value
+            postInvalidate()
+        }
+    /**边界粗细*/
+    var borderWidth = 0
+        set(value) {
+            field = value
+            postInvalidate()
+        }
+    /**是否是密码类型*/
+    var password = false
+        set(value) {
+            field = value
+            postInvalidate()
+        }
+    /**显示光标*/
+    var showCursor = false
+        set(value) {
+            field = value
+            postInvalidate()
+        }
+    /**光标闪动间隔*/
+    var cursorDuration = 0
+        set(value) {
+            field = value
+            postInvalidate()
+        }
+    /**光标宽度*/
+    var cursorWidth = 0
+        set(value) {
+            field = value
+            postInvalidate()
+        }
+    /**光标颜色*/
+    var cursorColor = 0
+        set(value) {
+            field = value
+            postInvalidate()
+        }
+    /**实心方式、空心方式*/
+    var type = 0
+        set(value) {
+            field = value
+            postInvalidate()
+        }
+    /**边框颜色颜色*/
+    var borderColor = 0
+        set(value) {
+            field = value
+            postInvalidate()
+        }
+    /**实心方块颜色*/
+    var blockColor = 0
+        set(value) {
+            field = value
+            postInvalidate()
+        }
+    /**文本字体颜色*/
+    var txtColor = 0
+        set(value) {
+            field = value
+            postInvalidate()
         }
 
-    /**
-     * The font color
-     */
-    var exampleColor: Int
-        get() = _exampleColor
-        set(value) {
-            _exampleColor = value
-            invalidateTextPaintAndMeasurements()
-        }
+    //边界画笔
+    private lateinit var borderPaint: Paint
+    //实心块画笔
+    private lateinit var blockPaint: Paint
+    //内容画笔
+    private lateinit var textPaint: Paint
+    //光标画笔
+    private lateinit var cursorPaint: Paint
+    //正方形边界
+    private lateinit var borderRectF: RectF
+    //小方块、小矩形
+    private lateinit var boxRectF: RectF
+    //方块宽度
+    private var boxWidth = 0
+    //方块高度
+    private var boxHeight = 0
+    //是否显示光标
+    private var isCursorShowing = false
+    //内容
+    private lateinit var contentText: CharSequence
+    //内容变动监听器
+    var textChangedListener: TextChangedListener? = null
 
-    /**
-     * In the example view, this dimension is the font size.
-     */
-    var exampleDimension: Float
-        get() = _exampleDimension
-        set(value) {
-            _exampleDimension = value
-            invalidateTextPaintAndMeasurements()
-        }
-
-    /**
-     * In the example view, this drawable is drawn above the text.
-     */
-    var exampleDrawable: Drawable? = null
+    private var timer: Timer? = null
+    private var timerTask: TimerTask? = null
 
     constructor(context: Context) : super(context) {
         init(null, 0)
@@ -70,87 +147,329 @@ class VerificationCodeEditText : AppCompatEditText {
         attrs,
         defStyle
     ) {
+        isLongClickable = false
+        setTextIsSelectable(false)
+        customSelectionActionModeCallback = object : android.view.ActionMode.Callback {
+            /**
+             * Called to report a user click on an action button.
+             *
+             * @param mode The current ActionMode
+             * @param item The item that was clicked
+             * @return true if this callback handled the event, false if the standard MenuItem
+             * invocation should continue.
+             */
+            override fun onActionItemClicked(
+                mode: android.view.ActionMode?,
+                item: MenuItem?
+            ): Boolean {
+                return false
+            }
+
+            /**
+             * Called when action mode is first created. The menu supplied will be used to
+             * generate action buttons for the action mode.
+             *
+             * @param mode ActionMode being created
+             * @param menu Menu used to populate action buttons
+             * @return true if the action mode should be created, false if entering this
+             * mode should be aborted.
+             */
+            override fun onCreateActionMode(mode: android.view.ActionMode?, menu: Menu?): Boolean {
+                return false
+            }
+
+            /**
+             * Called to refresh an action mode's action menu whenever it is invalidated.
+             *
+             * @param mode ActionMode being prepared
+             * @param menu Menu used to populate action buttons
+             * @return true if the menu or action mode was updated, false otherwise.
+             */
+            override fun onPrepareActionMode(mode: android.view.ActionMode?, menu: Menu?): Boolean {
+                return false
+            }
+
+            /**
+             * Called when an action mode is about to be exited and destroyed.
+             *
+             * @param mode The current ActionMode being destroyed
+             */
+            override fun onDestroyActionMode(mode: android.view.ActionMode?) {
+            }
+
+        }
+
         init(attrs, defStyle)
     }
 
     private fun init(attrs: AttributeSet?, defStyle: Int) {
         // Load attributes
-        val a = context.obtainStyledAttributes(
+        val ta = context.obtainStyledAttributes(
             attrs, R.styleable.VerificationCodeEditText, defStyle, 0
         )
-
-        _exampleString = a.getString(
-            R.styleable.VerificationCodeEditText_exampleString
+        password = ta.getBoolean(R.styleable.VerificationCodeEditText_password, false)
+        showCursor = ta.getBoolean(R.styleable.VerificationCodeEditText_showCursor, true)
+        borderColor = ta.getColor(
+            R.styleable.VerificationCodeEditText_borderColor,
+            ContextCompat.getColor(context, R.color.lightGrey)
         )
-        _exampleColor = a.getColor(
-            R.styleable.VerificationCodeEditText_exampleColor,
-            exampleColor
+        blockColor = ta.getColor(
+            R.styleable.VerificationCodeEditText_blockColor,
+            ContextCompat.getColor(context, R.color.lightGrey)
         )
-        // Use getDimensionPixelSize or getDimensionPixelOffset when dealing with
-        // values that should fall on pixel boundaries.
-        _exampleDimension = a.getDimension(
-            R.styleable.VerificationCodeEditText_exampleDimension,
-            exampleDimension
+        txtColor = ta.getColor(
+            R.styleable.VerificationCodeEditText_textColor,
+            ContextCompat.getColor(context, R.color.lightGrey)
         )
+        cursorColor = ta.getColor(
+            R.styleable.VerificationCodeEditText_cursorColor,
+            ContextCompat.getColor(context, R.color.lightGrey)
+        )
+        corner = ta.getDimension(R.styleable.VerificationCodeEditText_corner, 0f).toInt()
+        spacing = ta.getDimension(R.styleable.VerificationCodeEditText_blockSpacing, 0f).toInt()
+        type = ta.getInt(
+            R.styleable.VerificationCodeEditText_separateType, VerificationCodeEditText.TYPE_HOLLOW
+        )
+        maxLength = ta.getInt(R.styleable.VerificationCodeEditText_maxLength, 6)
+        cursorDuration = ta.getInt(R.styleable.VerificationCodeEditText_cursorDuration, 500)
+        cursorWidth = ta.getDimension(R.styleable.VerificationCodeEditText_cursorWidth, 2f).toInt()
+        borderWidth = ta.getDimension(R.styleable.VerificationCodeEditText_borderWidth, 5f).toInt()
 
-        if (a.hasValue(R.styleable.VerificationCodeEditText_exampleDrawable)) {
-            exampleDrawable = a.getDrawable(
-                R.styleable.VerificationCodeEditText_exampleDrawable
-            )
-            exampleDrawable?.callback = this
-        }
+        ta.recycle()
 
-        a.recycle()
-
-        // Set up a default TextPaint object
-        textPaint = TextPaint().apply {
-            flags = Paint.ANTI_ALIAS_FLAG
-            textAlign = Paint.Align.LEFT
-        }
-
-        // Update TextPaint and text measurements from attributes
-        invalidateTextPaintAndMeasurements()
+        this.init()
     }
 
-    private fun invalidateTextPaintAndMeasurements() {
-        textPaint?.let {
-            it.textSize = exampleDimension
-            it.color = exampleColor
-            textWidth = it.measureText(exampleString)
-            textHeight = it.fontMetrics.bottom
+    private fun init() {
+        this.isFocusableInTouchMode = true
+        this.isFocusable = true
+        this.requestFocus()
+        this.isCursorVisible = false
+        this.filters = arrayOf<InputFilter>(LengthFilter(maxLength))
+
+        Handler().postDelayed({
+            val imm =
+                context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.toggleSoftInput(0, InputMethodManager.SHOW_FORCED)
+        }, 1000)
+
+        blockPaint = Paint()
+        blockPaint.isAntiAlias = true
+        blockPaint.color = blockColor
+        blockPaint.style = Paint.Style.FILL
+        blockPaint.strokeWidth = 1.toFloat()
+
+        textPaint = Paint()
+        textPaint.isAntiAlias = true
+        textPaint.color = txtColor
+        textPaint.style = Paint.Style.FILL_AND_STROKE
+        textPaint.strokeWidth = 1.toFloat()
+
+        borderPaint = Paint()
+        borderPaint.isAntiAlias = true
+        borderPaint.color = borderColor
+        borderPaint.style = Paint.Style.STROKE
+        borderPaint.strokeWidth = borderWidth.toFloat()
+
+        cursorPaint = Paint()
+        cursorPaint.isAntiAlias = true
+        cursorPaint.color = cursorColor
+        cursorPaint.style = Paint.Style.FILL_AND_STROKE
+        cursorPaint.strokeWidth = cursorWidth.toFloat()
+
+        borderRectF = RectF()
+        boxRectF = RectF()
+
+        if (type == TYPE_HOLLOW) spacing = 0
+
+        timerTask = object : TimerTask() {
+            override fun run() {
+                isCursorShowing = !isCursorShowing
+                postInvalidate()
+            }
         }
+        timer = Timer()
     }
+
 
     override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
+//        super.onDraw(canvas)
+        this.drawRect(canvas)
+        this.drawText(canvas, contentText)
+        this.drawCursor(canvas)
+    }
 
-        // TODO: consider storing these as member variables to reduce
-        // allocations per draw cycle.
-        val paddingLeft = paddingLeft
-        val paddingTop = paddingTop
-        val paddingRight = paddingRight
-        val paddingBottom = paddingBottom
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        var width = w
+        var height = h
+        boxWidth = (width - spacing * (maxLength + 1)) / maxLength
+        boxHeight = height
+        borderRectF[0f, 0f, width.toFloat()] = height.toFloat()
 
-        val contentWidth = width - paddingLeft - paddingRight
-        val contentHeight = height - paddingTop - paddingBottom
+        if (type == TYPE_HOLLOW) {
+            textPaint.textSize = boxWidth / 3.toFloat()
+        } else {
+            textPaint.textSize = boxWidth / 2.5.toFloat()
+        }
+    }
 
-        exampleString?.let {
-            // Draw the text.
-            canvas.drawText(
-                it,
-                paddingLeft + (contentWidth - textWidth) / 2,
-                paddingTop + (contentHeight + textHeight) / 2,
+    override fun onTextChanged(
+        text: CharSequence?,
+        start: Int,
+        lengthBefore: Int,
+        lengthAfter: Int
+    ) {
+        super.onTextChanged(text, start, lengthBefore, lengthAfter)
+        contentText = text ?: ""
+        invalidate()
+        if (maxLength == text?.length) {
+            textChangedListener?.textCompleted(text)
+        } else {
+            textChangedListener?.textChanged(text)
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        //cursorFlashTime为光标闪动的间隔时间
+        timer?.scheduleAtFixedRate(timerTask, 0, cursorDuration.toLong())
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        timer?.cancel()
+    }
+
+    override fun onTextContextMenuItem(id: Int): Boolean {
+        return true
+    }
+
+    override fun onSelectionChanged(selStart: Int, selEnd: Int) {
+        val text: CharSequence? = text
+        if (text != null) {
+            if (selStart != text.length || selEnd != text.length) {
+                setSelection(text.length, text.length)
+                return
+            }
+        }
+        super.onSelectionChanged(selStart, selEnd)
+    }
+
+    fun clearText() {
+        setText("")
+    }
+
+    /**
+     * 绘制光标
+     *
+     * @param canvas
+     */
+    private fun drawCursor(canvas: Canvas) {
+        if (!isCursorShowing && showCursor && contentText.length < maxLength && hasFocus()) {
+            val cursorPosition = contentText.length + 1
+            val startX =
+                spacing * cursorPosition + boxWidth * (cursorPosition - 1) + boxWidth / 2
+            val startY = boxHeight / 4
+            val endY = boxHeight - boxHeight / 4
+            canvas.drawLine(
+                startX.toFloat(),
+                startY.toFloat(),
+                startX.toFloat(),
+                endY.toFloat(),
+                cursorPaint
+            )
+        }
+    }
+
+    /**
+     * 绘制内容　
+     * @param canvas
+     * @param charSequence
+     */
+    private fun drawText(
+        canvas: Canvas,
+        charSequence: CharSequence
+    ) {
+        for (i in charSequence.indices) {
+            val startX = spacing * (i + 1) + boxWidth * i
+            val startY = 0
+            val baseX =
+                (startX + boxWidth / 2 - textPaint.measureText(charSequence[i].toString()) / 2).toInt()
+            val baseY =
+                (startY + boxHeight / 2 - (textPaint.descent() + textPaint.ascent()) / 2).toInt()
+            val centerX = startX + boxWidth / 2
+            val centerY = startY + boxHeight / 2
+            //Math.min=coerceAtMost
+            val radius = boxWidth.coerceAtMost(boxHeight) / 6
+            if (password) canvas.drawCircle(
+                centerX.toFloat(),
+                centerY.toFloat(),
+                radius.toFloat(),
+                textPaint
+            ) else canvas.drawText(
+                charSequence[i].toString(),
+                baseX.toFloat(),
+                baseY.toFloat(),
                 textPaint
             )
         }
+    }
 
-        // Draw the example drawable on top of the text.
-        exampleDrawable?.let {
-            it.setBounds(
-                paddingLeft, paddingTop,
-                paddingLeft + contentWidth, paddingTop + contentHeight
-            )
-            it.draw(canvas)
+
+    /**
+     * 画矩形框
+     * @param canvas
+     */
+    private fun drawRect(canvas: Canvas) {
+        for (i in 0 until maxLength) {
+            boxRectF[spacing * (i + 1) + boxWidth * i.toFloat(), 0f, spacing * (i + 1) + boxWidth * i + boxWidth.toFloat()] =
+                boxHeight.toFloat()
+            if (type == TYPE_SOLID) {
+                canvas.drawRoundRect(boxRectF, corner.toFloat(), corner.toFloat(), blockPaint)
+            } else if (type == TYPE_UNDERLINE) {
+                canvas.drawLine(
+                    boxRectF.left,
+                    boxRectF.bottom,
+                    boxRectF.right,
+                    boxRectF.bottom,
+                    borderPaint
+                )
+            } else if (type == TYPE_HOLLOW) {
+                if (i == 0 || i == maxLength) continue
+                canvas.drawLine(
+                    boxRectF.left,
+                    boxRectF.top,
+                    boxRectF.left,
+                    boxRectF.bottom,
+                    borderPaint
+                )
+            }
         }
+        if (type == TYPE_HOLLOW) canvas.drawRoundRect(
+            borderRectF,
+            corner.toFloat(),
+            corner.toFloat(),
+            borderPaint
+        )
+    }
+
+
+    /**
+     * 内容监听者
+     */
+    interface TextChangedListener {
+        /**
+         * 输入/删除监听
+         *
+         * @param changeText 输入/删除的字符
+         */
+        fun textChanged(changeText: CharSequence?)
+
+        /**
+         * 输入完成
+         * @param text 输入的字符
+         */
+        fun textCompleted(text: CharSequence?)
     }
 }
