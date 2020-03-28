@@ -29,7 +29,7 @@ Use:<br />1. Add VerificationCodeEditText to the layout file and set relevant cu
        app:showCursor="true"
        app:textColor="@color/colorAccent" />
 ```
-**Need to set width and height for the control * * *<br />
+*** Need to set width and height for the control ***<br />
 <br />2. Description of related attributes<br />
 
 
@@ -56,16 +56,16 @@ Use:<br />1. Add VerificationCodeEditText to the layout file and set relevant cu
         lineEdit.showCursor = true
         lineEdit.textChangedListener = object : VerificationCodeEditText.TextChangedListener {
             /**
-             * 输入/删除监听
+             * Enter / delete listener
              *
-             * @param changeText 输入/删除的字符
+             * @param changeText Enter / delete characters
              */
             override fun textChanged(changeText: CharSequence?) {
             }
 
             /**
-             * 输入完成
-             * @param text 输入的字符
+             * Input completed
+             * @param text Entered characters
              */
             override fun textCompleted(text: CharSequence?) {
                 Toast.makeText(applicationContext, text, Toast.LENGTH_LONG).show()
