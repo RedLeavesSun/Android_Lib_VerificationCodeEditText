@@ -1,4 +1,5 @@
-# VerificationCodeEditText [![](https://jitpack.io/v/FairyHeart/VerificationCodeEditText.svg)](https://jitpack.io/#FairyHeart/VerificationCodeEditText)
+# VerificationCodeEditText 
+[![](https://jitpack.io/v/FairyHeart/VerificationCodeEditText.svg)](https://jitpack.io/#FairyHeart/VerificationCodeEditText)
 
 [中文使用](https://github.com/FairyHeart/VerificationCodeEditText/wiki/%E4%B8%AD%E6%96%87%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E)
 
