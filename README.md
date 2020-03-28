@@ -30,7 +30,27 @@ align=center>
        app:textColor="@color/colorAccent" />
 ```
 ***需要给控件设置宽高***<br />
-<br />2、java代码中设置监听器，也可以设置自定义的相关属性
+<br />2、相关属性说明<br />
+
+
+| **属性名** | **属性说明** |
+| :---: | :---: |
+| password | 设置是否是密码样式，true 则显示小圆点 |
+| showCursor | 是否显示光标 |
+| separateType | 按钮样式，@integer/type_hollow空心方形，type_solid=实心方形，type_underline=下划线 |
+| maxLength | 设置显示框框个数，0表示根据屏幕自动计算 |
+| corner | 设置圆角 dp |
+| borderColor | 设置框框实心部分颜色，type_solid适用 |
+| borderWidth | 设置边框粗细 dp |
+| blockColor | 设置框框实心部分颜色，type_solid适用 |
+| textColor | 设置文本绘制颜色 |
+| blockSpacing | 设置框框间隙，type_solid、type_underline适用 |
+| cursorDuration | 设置游标闪烁时长 毫秒 |
+| cursorWidth | 设置进游标宽度 |
+| cursorColor | 设置游标显示颜色 |
+
+
+<br />3、java代码中设置监听器，也可以设置自定义的相关属性
 ```kotlin
         val lineEdit = findViewById<VerificationCodeEditText>(R.id.rect_edit)
         lineEdit.showCursor = true
@@ -53,5 +73,3 @@ align=center>
 
         } 
 ```
-
-<br />3、相关属性说明<br />
