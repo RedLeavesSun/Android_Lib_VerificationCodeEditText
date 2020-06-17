@@ -5,15 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="20dp"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="#EFF0F4">
 
     <com.lib.verification.code.VerificationCodeEditText
         android:id="@+id/rect_edit"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="@null"
         android:inputType="number"
-        app:blockColor="@color/colorLightGrey"
         app:borderColor="@color/colorPrimary"
         app:borderWidth="2dp"
         app:corner="10dp"
@@ -26,59 +25,52 @@
         app:maxLength="4"
         app:password="true"
         app:separateType="@integer/type_hollow"
-        app:showCursor="true"
-        app:textColor="@color/colorAccent" />
+        app:showCursor="true" />
 
     <com.lib.verification.code.VerificationCodeEditText
         android:id="@+id/edit_underline"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="20dp"
-        android:background="@null"
         android:inputType="number"
         app:blockSpacing="10dp"
-        app:borderColor="@color/colorLightGrey"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rect_edit"
         app:maxLength="4"
-        app:separateType="@integer/type_underline"
-        app:textColor="@color/colorAccent" />
+        app:separateType="@integer/type_underline" />
 
     <com.lib.verification.code.VerificationCodeEditText
         android:id="@+id/edit"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="20dp"
-        android:background="@null"
         android:inputType="number"
         app:blockSpacing="10dp"
-        app:borderColor="@android:color/transparent"
         app:corner="10dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edit_underline"
         app:maxLength="4"
-        app:separateType="@integer/type_solid"
-        app:textColor="@color/colorAccent" />
+        app:separateType="@integer/type_solid" />
 
     <com.lib.verification.code.VerificationCodeEditText
         android:id="@+id/edit2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:background="@null"
         android:inputType="number"
+        android:textColor="#FF0000"
+        android:textSize="21sp"
+        android:textStyle="bold"
         app:blockHeight="45dp"
         app:blockSpacing="20dp"
         app:blockWidth="45dp"
-        app:borderColor="@android:color/transparent"
         app:corner="5dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edit"
         app:maxLength="4"
-        app:separateType="@integer/type_solid"
-        app:textColor="@color/colorAccent" />
+        app:separateType="@integer/type_solid" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

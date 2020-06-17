@@ -42,7 +42,6 @@ Use:<br />1. Add VerificationCodeEditText to the layout file and set relevant cu
 | separateType | Button style, @ integer/type_hollow hollow square,type_solid = solid square,Type_equipments = underscores |
 | maxLength | Set the number of display boxes. 0 indicates automatic calculation based on the screen. |
 | corner | Set fillet dp |
-| textColor | Set the color of text drawing |
 | borderColor | Set the solid color of the box, type_solid is applicable |
 | borderWidth | Set border thickness dp |
 | blockWidth | Set the width of the box |

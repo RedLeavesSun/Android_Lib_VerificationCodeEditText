@@ -6,7 +6,6 @@
         <attr name="separateType" format="reference|integer" />
         <attr name="maxLength" format="integer" />
         <attr name="corner" format="dimension" />
-        <attr name="textColor" format="color|reference" />
         <attr name="borderWidth" format="dimension" />
         <attr name="borderColor" format="color|reference" />
         <attr name="blockWidth" format="dimension" />

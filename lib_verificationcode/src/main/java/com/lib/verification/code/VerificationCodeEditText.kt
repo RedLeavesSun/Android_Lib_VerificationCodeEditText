@@ -2,6 +2,7 @@ package com.lib.verification.code
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.os.Handler
@@ -98,12 +99,6 @@ class VerificationCodeEditText : AppCompatEditText {
         }
     /**实心方块颜色*/
     var blockColor = 0
-        set(value) {
-            field = value
-            postInvalidate()
-        }
-    /**文本字体颜色*/
-    var txtColor = 0
         set(value) {
             field = value
             postInvalidate()
@@ -212,11 +207,11 @@ class VerificationCodeEditText : AppCompatEditText {
         showCursor = ta.getBoolean(R.styleable.VerificationCodeEditText_showCursor, true)
         borderColor = ta.getColor(
             R.styleable.VerificationCodeEditText_borderColor,
-            ContextCompat.getColor(context, R.color.colorLightGrey)
+            Color.GRAY
         )
         blockColor = ta.getColor(
             R.styleable.VerificationCodeEditText_blockColor,
-            ContextCompat.getColor(context, R.color.colorLightGrey)
+            Color.WHITE
         )
         blockWidth = ta.getDimension(
             R.styleable.VerificationCodeEditText_blockWidth,
@@ -226,13 +221,9 @@ class VerificationCodeEditText : AppCompatEditText {
             R.styleable.VerificationCodeEditText_blockHeight,
             0f
         ).toInt()
-        txtColor = ta.getColor(
-            R.styleable.VerificationCodeEditText_textColor,
-            ContextCompat.getColor(context, R.color.colorLightGrey)
-        )
         cursorColor = ta.getColor(
             R.styleable.VerificationCodeEditText_cursorColor,
-            ContextCompat.getColor(context, R.color.colorLightGrey)
+            Color.GRAY
         )
         corner = ta.getDimension(R.styleable.VerificationCodeEditText_corner, 0f).toInt()
         spacing = ta.getDimension(R.styleable.VerificationCodeEditText_blockSpacing, 0f).toInt()
@@ -245,6 +236,8 @@ class VerificationCodeEditText : AppCompatEditText {
         borderWidth = ta.getDimension(R.styleable.VerificationCodeEditText_borderWidth, 5f).toInt()
 
         ta.recycle()
+
+        background = null;
 
         this.init()
     }
@@ -270,9 +263,11 @@ class VerificationCodeEditText : AppCompatEditText {
 
         textPaint = Paint()
         textPaint.isAntiAlias = true
-        textPaint.color = txtColor
+        textPaint.color = currentTextColor
         textPaint.style = Paint.Style.FILL_AND_STROKE
         textPaint.strokeWidth = 1.toFloat()
+        textPaint.textSize = textSize
+        textPaint.typeface = typeface
 
         borderPaint = Paint()
         borderPaint.isAntiAlias = true
@@ -334,12 +329,6 @@ class VerificationCodeEditText : AppCompatEditText {
             blockHeight = height
         }
         borderRectF[0f, 0f, width.toFloat()] = height.toFloat()
-
-        if (type == TYPE_HOLLOW) {
-            textPaint.textSize = blockWidth / 3.toFloat()
-        } else {
-            textPaint.textSize = blockWidth / 2.5.toFloat()
-        }
     }
 
     override fun onTextChanged(
