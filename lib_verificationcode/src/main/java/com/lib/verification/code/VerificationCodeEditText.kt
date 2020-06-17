@@ -8,6 +8,7 @@ import android.os.Handler
 import android.text.InputFilter
 import android.text.InputFilter.LengthFilter
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
@@ -121,9 +122,9 @@ class VerificationCodeEditText : AppCompatEditText {
     //小方块、小矩形
     private lateinit var boxRectF: RectF
     //方块宽度
-    private var boxWidth = 0
+    private var blockWidth = 0
     //方块高度
-    private var boxHeight = 0
+    private var blockHeight = 0
     //是否显示光标
     private var isCursorShowing = false
     //内容
@@ -211,19 +212,27 @@ class VerificationCodeEditText : AppCompatEditText {
         showCursor = ta.getBoolean(R.styleable.VerificationCodeEditText_showCursor, true)
         borderColor = ta.getColor(
             R.styleable.VerificationCodeEditText_borderColor,
-            ContextCompat.getColor(context, R.color.lightGrey)
+            ContextCompat.getColor(context, R.color.colorLightGrey)
         )
         blockColor = ta.getColor(
             R.styleable.VerificationCodeEditText_blockColor,
-            ContextCompat.getColor(context, R.color.lightGrey)
+            ContextCompat.getColor(context, R.color.colorLightGrey)
         )
+        blockWidth = ta.getDimension(
+            R.styleable.VerificationCodeEditText_blockWidth,
+            0f
+        ).toInt()
+        blockHeight = ta.getDimension(
+            R.styleable.VerificationCodeEditText_blockHeight,
+            0f
+        ).toInt()
         txtColor = ta.getColor(
             R.styleable.VerificationCodeEditText_textColor,
-            ContextCompat.getColor(context, R.color.lightGrey)
+            ContextCompat.getColor(context, R.color.colorLightGrey)
         )
         cursorColor = ta.getColor(
             R.styleable.VerificationCodeEditText_cursorColor,
-            ContextCompat.getColor(context, R.color.lightGrey)
+            ContextCompat.getColor(context, R.color.colorLightGrey)
         )
         corner = ta.getDimension(R.styleable.VerificationCodeEditText_corner, 0f).toInt()
         spacing = ta.getDimension(R.styleable.VerificationCodeEditText_blockSpacing, 0f).toInt()
@@ -299,18 +308,37 @@ class VerificationCodeEditText : AppCompatEditText {
         this.drawCursor(canvas)
     }
 
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        var w = widthMeasureSpec
+        var h = heightMeasureSpec
+
+        if (blockWidth != 0) {
+            w = blockWidth * maxLength + spacing * (maxLength + 1)
+        }
+
+        if (blockHeight != 0) {
+            h = blockHeight
+        }
+
+        setMeasuredDimension(w, h)
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         var width = w
         var height = h
-        boxWidth = (width - spacing * (maxLength + 1)) / maxLength
-        boxHeight = height
+        if (blockWidth == 0) {
+            blockWidth = (width - spacing * (maxLength + 1)) / maxLength
+        }
+        if (blockHeight == 0) {
+            blockHeight = height
+        }
         borderRectF[0f, 0f, width.toFloat()] = height.toFloat()
 
         if (type == TYPE_HOLLOW) {
-            textPaint.textSize = boxWidth / 3.toFloat()
+            textPaint.textSize = blockWidth / 3.toFloat()
         } else {
-            textPaint.textSize = boxWidth / 2.5.toFloat()
+            textPaint.textSize = blockWidth / 2.5.toFloat()
         }
     }
 
@@ -369,9 +397,9 @@ class VerificationCodeEditText : AppCompatEditText {
         if (!isCursorShowing && showCursor && contentText.length < maxLength && hasFocus()) {
             val cursorPosition = contentText.length + 1
             val startX =
-                spacing * cursorPosition + boxWidth * (cursorPosition - 1) + boxWidth / 2
-            val startY = boxHeight / 4
-            val endY = boxHeight - boxHeight / 4
+                spacing * cursorPosition + blockWidth * (cursorPosition - 1) + blockWidth / 2
+            val startY = blockHeight / 4
+            val endY = blockHeight - blockHeight / 4
             canvas.drawLine(
                 startX.toFloat(),
                 startY.toFloat(),
@@ -392,16 +420,16 @@ class VerificationCodeEditText : AppCompatEditText {
         charSequence: CharSequence
     ) {
         for (i in charSequence.indices) {
-            val startX = spacing * (i + 1) + boxWidth * i
+            val startX = spacing * (i + 1) + blockWidth * i
             val startY = 0
             val baseX =
-                (startX + boxWidth / 2 - textPaint.measureText(charSequence[i].toString()) / 2).toInt()
+                (startX + blockWidth / 2 - textPaint.measureText(charSequence[i].toString()) / 2).toInt()
             val baseY =
-                (startY + boxHeight / 2 - (textPaint.descent() + textPaint.ascent()) / 2).toInt()
-            val centerX = startX + boxWidth / 2
-            val centerY = startY + boxHeight / 2
+                (startY + blockHeight / 2 - (textPaint.descent() + textPaint.ascent()) / 2).toInt()
+            val centerX = startX + blockWidth / 2
+            val centerY = startY + blockHeight / 2
             //Math.min=coerceAtMost
-            val radius = boxWidth.coerceAtMost(boxHeight) / 6
+            val radius = blockWidth.coerceAtMost(blockHeight) / 6
             if (password) canvas.drawCircle(
                 centerX.toFloat(),
                 centerY.toFloat(),
@@ -423,8 +451,8 @@ class VerificationCodeEditText : AppCompatEditText {
      */
     private fun drawRect(canvas: Canvas) {
         for (i in 0 until maxLength) {
-            boxRectF[spacing * (i + 1) + boxWidth * i.toFloat(), 0f, spacing * (i + 1) + boxWidth * i + boxWidth.toFloat()] =
-                boxHeight.toFloat()
+            boxRectF[spacing * (i + 1) + blockWidth * i.toFloat(), 0f, spacing * (i + 1) + blockWidth * i + blockWidth.toFloat()] =
+                blockHeight.toFloat()
             if (type == TYPE_SOLID) {
                 canvas.drawRoundRect(boxRectF, corner.toFloat(), corner.toFloat(), blockPaint)
             } else if (type == TYPE_UNDERLINE) {

@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'com.github.dcendents.android-maven'
 
-group='com.github.FairyHeart'//gitbub账号
+group='com.github.RedLeavesSun'//gitbub账号
 
 android {
     compileSdkVersion 28
